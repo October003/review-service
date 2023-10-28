@@ -25,26 +25,24 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 	if req.Anonymous {
 		anonymous = 1
 	}
-	// 调用biz层 参数转换 
+	// 调用biz层 参数转换
 	review, err := s.uc.CreateReview(ctx, &model.ReviewInfo{
-		UserID: req.UserID,
-		OrderID: req.OrderID,
-		Score: req.Score,
+		UserID:       req.UserID,
+		OrderID:      req.OrderID,
+		Score:        req.Score,
 		ServiceScore: req.ServiceScore,
 		ExpressScore: req.ExpressScore,
-		Content: req.Content,
-		PicInfo: req.PicInfo,
-		VideoInfo: req.VideoInfo,
-		Anonymous: anonymous,
-		Status: 0,
+		Content:      req.Content,
+		PicInfo:      req.PicInfo,
+		VideoInfo:    req.VideoInfo,
+		Anonymous:    anonymous,
+		Status:       0,
 	})
 	if err != nil {
-		
+		return nil, err
 	}
 	// 拼装返回结果
-	return &pb.CreateReviewReply{
-		ReviewID: review.ReviewID,
-	}, nil
+	return &pb.CreateReviewReply{ReviewID: review.ReviewID}, nil
 }
 func (s *ReviewService) UpdateReview(ctx context.Context, req *pb.UpdateReviewRequest) (*pb.UpdateReviewReply, error) {
 	return &pb.UpdateReviewReply{}, nil
