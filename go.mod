@@ -3,6 +3,7 @@ module review-service
 go 1.21
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0
 	github.com/glebarez/sqlite v1.9.0
 	github.com/go-kratos/kratos/v2 v2.7.0
 	github.com/google/wire v0.5.0

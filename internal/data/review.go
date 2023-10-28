@@ -26,3 +26,8 @@ func (r *reviewRepo) SaveReview(ctx context.Context, review *model.ReviewInfo) (
 	return review, err
 }
 
+func (r *reviewRepo) GetReviewByOrderID(ctx context.Context,id int64) ([]*model.ReviewInfo,error){
+	
+}
+
+
