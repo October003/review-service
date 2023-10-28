@@ -6,11 +6,11 @@
 package main
 
 import (
-	"review-service/internal/biz"
-	"review-service/internal/conf"
-	"review-service/internal/data"
-	"review-service/internal/server"
-	"review-service/internal/service"
+	"github.com/October003/review-service/internal/biz"
+	"github.com/October003/review-service/internal/conf"
+	"github.com/October003/review-service/internal/data"
+	"github.com/October003/review-service/internal/server"
+	"github.com/October003/review-service/internal/service"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"

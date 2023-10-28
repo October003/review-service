@@ -3,10 +3,10 @@ package biz
 import (
 	"context"
 	"fmt"
-	v1 "review-service/api/review/v1"
-	"review-service/internal/data/model"
-	"review-service/pkg/snowflake"
 
+	v1 "github.com/October003/review-service/api/review/v1"
+	"github.com/October003/review-service/internal/data/model"
+	"github.com/October003/review-service/pkg/snowflake"
 	"github.com/go-kratos/kratos/v2/log"
 )
 

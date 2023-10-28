@@ -4,9 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"review-service/internal/conf"
 	"strings"
 
+	"github.com/October003/review-service/internal/conf"
 	"github.com/glebarez/sqlite"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
