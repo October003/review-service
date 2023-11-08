@@ -51,7 +51,14 @@ func (uc *ReviewUsecase) CreateReview(ctx context.Context, review *model.ReviewI
 	return uc.repo.SaveReview(ctx, review)
 }
 
-func (uc *ReviewUsecase) ReviewReply(ctx context.Context, reply *ReplyParam) (*model.ReviewReplyInfo, error) {
-	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,req:%v", reply)
-	return uc.repo.SaveReply()
+func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyParam) (*model.ReviewReplyInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,req:%v", param)
+	reply := &model.ReviewReplyInfo{
+		ReviewID:  &param.ReviewID,
+		StoreID:   &param.StoreID,
+		Content:   param.Content,
+		PicInfo:   param.PicInfo,
+		VideoInfo: param.VideoInfo,
+	}
+	return uc.repo.SaveReply(ctx, reply)
 }
