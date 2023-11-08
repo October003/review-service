@@ -50,3 +50,8 @@ func (uc *ReviewUsecase) CreateReview(ctx context.Context, review *model.ReviewI
 	// 4.拼装数据入库
 	return uc.repo.SaveReview(ctx, review)
 }
+
+func (uc *ReviewUsecase) ReviewReply(ctx context.Context, reply *ReplyParam) (*model.ReviewReplyInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,req:%v", reply)
+	return uc.repo.SaveReply()
+}

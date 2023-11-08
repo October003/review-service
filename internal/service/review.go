@@ -12,7 +12,6 @@ import (
 
 type ReviewService struct {
 	pb.UnimplementedReviewServer
-
 	uc *biz.ReviewUsecase
 }
 
@@ -21,12 +20,12 @@ func NewReviewService(uc *biz.ReviewUsecase) *ReviewService {
 }
 
 func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRequest) (*pb.CreateReviewReply, error) {
-	fmt.Printf("[service] CreateReview, req:%#v\n", req)
+	fmt.Printf("[service] CreateReview req:%#v\n", req)
+	// 判是否为匿名评价
 	var anonymous int32
 	if req.Anonymous {
 		anonymous = 1
 	}
-	// 调用biz层 参数转换
 	review, err := s.uc.CreateReview(ctx, &model.ReviewInfo{
 		UserID:       req.UserID,
 		OrderID:      req.OrderID,
@@ -40,20 +39,32 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 		Status:       0,
 	})
 	if err != nil {
-		return nil, err
+		return &pb.CreateReviewReply{}, nil
 	}
-	// 拼装返回结果
 	return &pb.CreateReviewReply{ReviewID: review.ReviewID}, nil
 }
-func (s *ReviewService) UpdateReview(ctx context.Context, req *pb.UpdateReviewRequest) (*pb.UpdateReviewReply, error) {
-	return &pb.UpdateReviewReply{}, nil
-}
-func (s *ReviewService) DeleteReview(ctx context.Context, req *pb.DeleteReviewRequest) (*pb.DeleteReviewReply, error) {
-	return &pb.DeleteReviewReply{}, nil
-}
+
 func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest) (*pb.GetReviewReply, error) {
 	return &pb.GetReviewReply{}, nil
 }
-func (s *ReviewService) ListReview(ctx context.Context, req *pb.ListReviewRequest) (*pb.ListReviewReply, error) {
-	return &pb.ListReviewReply{}, nil
+func (s *ReviewService) AuditReview(ctx context.Context, req *pb.AuditReviewRequest) (*pb.AuditReviewReply, error) {
+	return &pb.AuditReviewReply{}, nil
+}
+func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequest) (*pb.ReplyReviewReply, error) {
+	fmt.Printf("[service] ReplyReview req:%#v\n", req)
+	// 掉用biz层
+	reply, err := s.uc.ReviewReply(ctx, &biz.ReplyParam{
+		ReviewID:  req.ReviewID,
+		StoreID:   req.StoreID,
+		Content:   req.Content,
+		PicInfo:   req.PicInfo,
+		VideoInfo: req.VideoInfo,
+	})
+	if err != nil {
+		return &pb.ReplyReviewReply{}, nil
+	}
+	return &pb.ReplyReviewReply{RelpyID: *reply.ReplyID}, nil
+}
+func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRequest) (*pb.AppealReviewReply, error) {
+	return &pb.AppealReviewReply{}, nil
 }
