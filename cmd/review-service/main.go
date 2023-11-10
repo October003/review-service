@@ -4,8 +4,9 @@ import (
 	"flag"
 	"os"
 
-	"github.com/October003/review-service/internal/conf"
-	"github.com/October003/review-service/pkg/snowflake"
+	"review-service/internal/conf"
+	"review-service/pkg/snowflake"
+
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"

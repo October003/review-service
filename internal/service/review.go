@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/October003/review-service/api/review/v1"
+	pb "review-service/api/review/v1"
 
-	"github.com/October003/review-service/internal/biz"
-	"github.com/October003/review-service/internal/data/model"
+	"review-service/internal/biz"
+	"review-service/internal/data/model"
 )
 
 type ReviewService struct {

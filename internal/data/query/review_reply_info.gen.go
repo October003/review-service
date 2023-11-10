@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/October003/review-service/internal/data/model"
+	"review-service/internal/data/model"
 )
 
 func newReviewReplyInfo(db *gorm.DB, opts ...gen.DOOption) reviewReplyInfo {

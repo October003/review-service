@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/October003/review-service/internal/conf"
+	"review-service/internal/conf"
+
 	"github.com/glebarez/sqlite"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"

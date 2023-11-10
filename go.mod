@@ -1,4 +1,4 @@
-module github.com/October003/review-service
+module review-service
 
 go 1.21
 

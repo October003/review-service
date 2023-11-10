@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/October003/review-service/internal/biz"
-	"github.com/October003/review-service/internal/data/model"
-	"github.com/October003/review-service/internal/data/query"
+	"review-service/internal/biz"
+	"review-service/internal/data/model"
+	"review-service/internal/data/query"
+
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -68,3 +69,4 @@ func (r *reviewRepo) SaveReply(ctx context.Context, reply *model.ReviewReplyInfo
 	//3. 返回数据
 	return reply, nil
 }
+

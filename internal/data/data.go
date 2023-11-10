@@ -4,8 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/October003/review-service/internal/conf"
-	"github.com/October003/review-service/internal/data/query"
+	"review-service/internal/conf"
+	"review-service/internal/data/query"
+
 	"github.com/glebarez/sqlite"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
