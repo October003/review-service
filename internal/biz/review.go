@@ -14,6 +14,7 @@ import (
 type ReviewRepo interface {
 	SaveReview(context.Context, *model.ReviewInfo) (*model.ReviewInfo, error)
 	GetReviewByOrderID(context.Context, int64) ([]*model.ReviewInfo, error)
+	SaveReply(context.Context, *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error)
 }
 
 type ReviewUsecase struct {

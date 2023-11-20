@@ -19,27 +19,33 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Review_CreateReview_FullMethodName = "/api.review.v1.Review/CreateReview"
-	Review_GetReview_FullMethodName    = "/api.review.v1.Review/GetReview"
-	Review_AuditReview_FullMethodName  = "/api.review.v1.Review/AuditReview"
-	Review_ReplyReview_FullMethodName  = "/api.review.v1.Review/ReplyReview"
-	Review_AppealReview_FullMethodName = "/api.review.v1.Review/AppealReview"
+	Review_Createreview_FullMethodName       = "/api.review.v1.review/createreview"
+	Review_GetReview_FullMethodName          = "/api.review.v1.review/GetReview"
+	Review_ListReviewByUserID_FullMethodName = "/api.review.v1.review/ListReviewByUserID"
+	Review_ReplyReview_FullMethodName        = "/api.review.v1.review/ReplyReview"
+	Review_AppealReview_FullMethodName       = "/api.review.v1.review/AppealReview"
+	Review_AuditReview_FullMethodName        = "/api.review.v1.review/AuditReview"
+	Review_AuditAppeal_FullMethodName        = "/api.review.v1.review/AuditAppeal"
 )
 
 // ReviewClient is the client API for Review service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReviewClient interface {
-	// C端 创建评价
-	CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewReply, error)
-	// C端 获得评价
+	// c端 创建评价
+	Createreview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewReply, error)
+	// C端 获取评价详情
 	GetReview(ctx context.Context, in *GetReviewRequest, opts ...grpc.CallOption) (*GetReviewReply, error)
-	// O端 审核评价
-	AuditReview(ctx context.Context, in *AuditReviewRequest, opts ...grpc.CallOption) (*AuditReviewReply, error)
+	// C端 查看userID下所有的评价信息
+	ListReviewByUserID(ctx context.Context, in *ListReviewByUserIDRequest, opts ...grpc.CallOption) (*ListReviewByUserIDReply, error)
 	// B端 回复评价
 	ReplyReview(ctx context.Context, in *ReplyReviewRequest, opts ...grpc.CallOption) (*ReplyReviewReply, error)
 	// B端 申诉评价
 	AppealReview(ctx context.Context, in *AppealReviewRequest, opts ...grpc.CallOption) (*AppealReviewReply, error)
+	// O端 审核评价
+	AuditReview(ctx context.Context, in *AuditReviewRequest, opts ...grpc.CallOption) (*AuditReviewReply, error)
+	// O端 审核评价申诉
+	AuditAppeal(ctx context.Context, in *AuditAppealRequest, opts ...grpc.CallOption) (*AuditAppealReply, error)
 }
 
 type reviewClient struct {
@@ -50,9 +56,9 @@ func NewReviewClient(cc grpc.ClientConnInterface) ReviewClient {
 	return &reviewClient{cc}
 }
 
-func (c *reviewClient) CreateReview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewReply, error) {
+func (c *reviewClient) Createreview(ctx context.Context, in *CreateReviewRequest, opts ...grpc.CallOption) (*CreateReviewReply, error) {
 	out := new(CreateReviewReply)
-	err := c.cc.Invoke(ctx, Review_CreateReview_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Review_Createreview_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +74,9 @@ func (c *reviewClient) GetReview(ctx context.Context, in *GetReviewRequest, opts
 	return out, nil
 }
 
-func (c *reviewClient) AuditReview(ctx context.Context, in *AuditReviewRequest, opts ...grpc.CallOption) (*AuditReviewReply, error) {
-	out := new(AuditReviewReply)
-	err := c.cc.Invoke(ctx, Review_AuditReview_FullMethodName, in, out, opts...)
+func (c *reviewClient) ListReviewByUserID(ctx context.Context, in *ListReviewByUserIDRequest, opts ...grpc.CallOption) (*ListReviewByUserIDReply, error) {
+	out := new(ListReviewByUserIDReply)
+	err := c.cc.Invoke(ctx, Review_ListReviewByUserID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,20 +101,42 @@ func (c *reviewClient) AppealReview(ctx context.Context, in *AppealReviewRequest
 	return out, nil
 }
 
+func (c *reviewClient) AuditReview(ctx context.Context, in *AuditReviewRequest, opts ...grpc.CallOption) (*AuditReviewReply, error) {
+	out := new(AuditReviewReply)
+	err := c.cc.Invoke(ctx, Review_AuditReview_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reviewClient) AuditAppeal(ctx context.Context, in *AuditAppealRequest, opts ...grpc.CallOption) (*AuditAppealReply, error) {
+	out := new(AuditAppealReply)
+	err := c.cc.Invoke(ctx, Review_AuditAppeal_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReviewServer is the server API for Review service.
 // All implementations must embed UnimplementedReviewServer
 // for forward compatibility
 type ReviewServer interface {
-	// C端 创建评价
-	CreateReview(context.Context, *CreateReviewRequest) (*CreateReviewReply, error)
-	// C端 获得评价
+	// c端 创建评价
+	Createreview(context.Context, *CreateReviewRequest) (*CreateReviewReply, error)
+	// C端 获取评价详情
 	GetReview(context.Context, *GetReviewRequest) (*GetReviewReply, error)
-	// O端 审核评价
-	AuditReview(context.Context, *AuditReviewRequest) (*AuditReviewReply, error)
+	// C端 查看userID下所有的评价信息
+	ListReviewByUserID(context.Context, *ListReviewByUserIDRequest) (*ListReviewByUserIDReply, error)
 	// B端 回复评价
 	ReplyReview(context.Context, *ReplyReviewRequest) (*ReplyReviewReply, error)
 	// B端 申诉评价
 	AppealReview(context.Context, *AppealReviewRequest) (*AppealReviewReply, error)
+	// O端 审核评价
+	AuditReview(context.Context, *AuditReviewRequest) (*AuditReviewReply, error)
+	// O端 审核评价申诉
+	AuditAppeal(context.Context, *AuditAppealRequest) (*AuditAppealReply, error)
 	mustEmbedUnimplementedReviewServer()
 }
 
@@ -116,20 +144,26 @@ type ReviewServer interface {
 type UnimplementedReviewServer struct {
 }
 
-func (UnimplementedReviewServer) CreateReview(context.Context, *CreateReviewRequest) (*CreateReviewReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateReview not implemented")
+func (UnimplementedReviewServer) Createreview(context.Context, *CreateReviewRequest) (*CreateReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Createreview not implemented")
 }
 func (UnimplementedReviewServer) GetReview(context.Context, *GetReviewRequest) (*GetReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReview not implemented")
 }
-func (UnimplementedReviewServer) AuditReview(context.Context, *AuditReviewRequest) (*AuditReviewReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AuditReview not implemented")
+func (UnimplementedReviewServer) ListReviewByUserID(context.Context, *ListReviewByUserIDRequest) (*ListReviewByUserIDReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListReviewByUserID not implemented")
 }
 func (UnimplementedReviewServer) ReplyReview(context.Context, *ReplyReviewRequest) (*ReplyReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReplyReview not implemented")
 }
 func (UnimplementedReviewServer) AppealReview(context.Context, *AppealReviewRequest) (*AppealReviewReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AppealReview not implemented")
+}
+func (UnimplementedReviewServer) AuditReview(context.Context, *AuditReviewRequest) (*AuditReviewReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuditReview not implemented")
+}
+func (UnimplementedReviewServer) AuditAppeal(context.Context, *AuditAppealRequest) (*AuditAppealReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuditAppeal not implemented")
 }
 func (UnimplementedReviewServer) mustEmbedUnimplementedReviewServer() {}
 
@@ -144,20 +178,20 @@ func RegisterReviewServer(s grpc.ServiceRegistrar, srv ReviewServer) {
 	s.RegisterService(&Review_ServiceDesc, srv)
 }
 
-func _Review_CreateReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Review_Createreview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateReviewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReviewServer).CreateReview(ctx, in)
+		return srv.(ReviewServer).Createreview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Review_CreateReview_FullMethodName,
+		FullMethod: Review_Createreview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReviewServer).CreateReview(ctx, req.(*CreateReviewRequest))
+		return srv.(ReviewServer).Createreview(ctx, req.(*CreateReviewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -180,20 +214,20 @@ func _Review_GetReview_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Review_AuditReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuditReviewRequest)
+func _Review_ListReviewByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListReviewByUserIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReviewServer).AuditReview(ctx, in)
+		return srv.(ReviewServer).ListReviewByUserID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Review_AuditReview_FullMethodName,
+		FullMethod: Review_ListReviewByUserID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReviewServer).AuditReview(ctx, req.(*AuditReviewRequest))
+		return srv.(ReviewServer).ListReviewByUserID(ctx, req.(*ListReviewByUserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -234,24 +268,60 @@ func _Review_AppealReview_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Review_AuditReview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuditReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReviewServer).AuditReview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Review_AuditReview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReviewServer).AuditReview(ctx, req.(*AuditReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Review_AuditAppeal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuditAppealRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReviewServer).AuditAppeal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Review_AuditAppeal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReviewServer).AuditAppeal(ctx, req.(*AuditAppealRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Review_ServiceDesc is the grpc.ServiceDesc for Review service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Review_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.review.v1.Review",
+	ServiceName: "api.review.v1.review",
 	HandlerType: (*ReviewServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateReview",
-			Handler:    _Review_CreateReview_Handler,
+			MethodName: "createreview",
+			Handler:    _Review_Createreview_Handler,
 		},
 		{
 			MethodName: "GetReview",
 			Handler:    _Review_GetReview_Handler,
 		},
 		{
-			MethodName: "AuditReview",
-			Handler:    _Review_AuditReview_Handler,
+			MethodName: "ListReviewByUserID",
+			Handler:    _Review_ListReviewByUserID_Handler,
 		},
 		{
 			MethodName: "ReplyReview",
@@ -260,6 +330,14 @@ var Review_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AppealReview",
 			Handler:    _Review_AppealReview_Handler,
+		},
+		{
+			MethodName: "AuditReview",
+			Handler:    _Review_AuditReview_Handler,
+		},
+		{
+			MethodName: "AuditAppeal",
+			Handler:    _Review_AuditAppeal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -10,55 +10,69 @@ option java_multiple_files = true;
 option java_package = "api.review.v1";
 
 // 定义评价服务
-service Review {
-	// C端 创建评价
-	rpc CreateReview (CreateReviewRequest) returns (CreateReviewReply){
+service review {
+	// c端 创建评价
+	rpc createreview (CreateReviewRequest) returns (CreateReviewReply){
 		option (google.api.http) = {
-			post: "v1/review",
+			post: "/v1/review",
 			body: "*"
 		};
 	};
-	// C端 获得评价
+	// C端 获取评价详情
 	rpc GetReview (GetReviewRequest) returns (GetReviewReply){
 		option (google.api.http) = {
-			get: "v1/review/{reviewID}"
+			get: "/v1/review/{reviewID}"
 		};
 	};
-	// O端 审核评价
-	rpc AuditReview (AuditReviewRequest) returns (AuditReviewReply){
+	// C端 查看userID下所有的评价信息
+	rpc ListReviewByUserID(ListReviewByUserIDRequest) returns(ListReviewByUserIDReply){
 		option (google.api.http) = {
-			post: "v1/review/audit",
-			body: "*"
+				get: "/v1/{userID}/reviews",
 		};
 	};
 	// B端 回复评价
 	rpc ReplyReview (ReplyReviewRequest) returns (ReplyReviewReply){
 		option (google.api.http) = {
-			post: "v1/review/reply",
+			post: "/v1/review/reply",
 			body: "*"
 		};
 	};
 	// B端 申诉评价
 	rpc AppealReview (AppealReviewRequest) returns (AppealReviewReply){
 		option (google.api.http) = {
-			post: "v1/review/appeal"
+			post: "/v1/review/appeal"
+			body: "*"
+		};
+	};
+	// O端 审核评价
+	rpc AuditReview (AuditReviewRequest) returns (AuditReviewReply){
+		option (google.api.http) = {
+			post: "/v1/review/audit",
+			body: "*"
+		};
+	};
+	// O端 审核评价申诉
+	rpc AuditAppeal(AuditAppealRequest) returns(AuditAppealReply){
+		option (google.api.http) = {
+			post: "/v1/appeal/audit",
 			body: "*"
 		};
 	};
 }
 
-
+// C端 用户端 1.用户对商品进行评价 2.用户查看某条评价的详情 3.用户查看评价列表
 // 创建评价的请求参数
 message CreateReviewRequest {
 	int64 userID = 1 [(validate.rules).int64 = {gt: 0 }];
 	int64 orderID = 2 [(validate.rules).int64 = {gt: 0 }]; 
-	int32 score = 3 [(validate.rules).int32 = {in :[1,2,3,4,5]}];
-	int32 serviceScore = 4 [(validate.rules).int32 = {in: [1,2,3,4,5]}];
-	int32 expressScore = 5 [(validate.rules).int32 = {in: [1,2,3,4,5]}];
-	string content = 6 [(validate.rules).string = {min_len: 8 , max_len: 255}];
-	string picInfo = 7;
-	string videoInfo = 8;
-	bool anonymous = 9;
+	int64 storeID = 3 [(validate.rules).int64 = {gt: 0 }]; 
+	int32 score = 4 [(validate.rules).int32 = {in :[1,2,3,4,5]}];
+	int32 serviceScore = 5 [(validate.rules).int32 = {in: [1,2,3,4,5]}];
+	int32 expressScore = 6 [(validate.rules).int32 = {in: [1,2,3,4,5]}];
+	string content = 7 [(validate.rules).string = {min_len: 8 , max_len: 255}];
+	string picInfo = 8;
+	string videoInfo = 9;
+	bool anonymous = 10;
 }
 // 创建评价的响应回复
 message CreateReviewReply {
@@ -66,7 +80,7 @@ message CreateReviewReply {
 }
 // 获取评价详情的请求参数
 message GetReviewRequest {
-	int64 reviewID = 1;
+	int64 reviewID = 1 [(validate.rules).int64 = {gt:0}];
 }
 // 获取评价详情的响应回复
 message GetReviewReply {
@@ -85,6 +99,18 @@ message ReviewInfo {
 	string videoInfo = 9;
 	int32 status =  10;
 }
+// 获取用户评价列表的请求参数
+message ListReviewByUserIDRequest{
+	int64 userID =  1 [(validate.rules).int64 = {gt:0}];
+	int32 page = 2 [(validate.rules).int32 = {gt: 0}];
+	int32 size = 3 [(validate.rules).int32 = {gt:0}];
+}
+// 获取用户评价列表的返回值
+message ListReviewByUserIDReply{
+	repeated ReviewInfo list = 1;
+}
+
+// B端 商家端 1.商家对用户的评价进行回复  2.商家对用户的评价进行申诉
 // 回复评价的请求参数
 message ReplyReviewRequest {
 	int64 reviewID = 1 [(validate.rules).int64 = {gt: 0}];
@@ -110,6 +136,8 @@ message AppealReviewRequest{
 message AppealReviewReply{
 	int64 appealID = 1;
 }
+
+// O端 运营端 运营人员负责审核 1.评价 2.商家对用户评价的申诉 
 // 审核评价的请求参数
 message AuditReviewRequest {
 	int64 reviewID = 1 [(validate.rules).int64 = {gt: 0}];
@@ -125,3 +153,15 @@ message AuditReviewReply {
 	int32 status = 2;
 }
 
+// 对商家的申述进行审核的请求参数
+message AuditAppealRequest {
+	int64 appealID = 1 [(validate.rules).int64 = {gt: 0}];
+	int64 reviewID = 2 [(validate.rules).int64 = {gt: 0}];
+	int32 status = 3 [(validate.rules).int32 = {gt: 0}];
+	string opUser = 4 [(validate.rules).string = {min_len:2}];
+	optional string opRemarks = 5;
+}
+// 对商家的申诉进行审核的返回值
+message AuditAppealReply{
+
+}

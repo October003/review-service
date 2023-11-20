@@ -7,12 +7,37 @@ info:
     description: 定义评价服务
     version: 0.0.1
 paths:
-    v1/review:
+    /v1/appeal/audit:
         post:
             tags:
                 - Review
-            description: C端 创建评价
-            operationId: Review_CreateReview
+            description: O端 审核评价申诉
+            operationId: Review_AuditAppeal
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuditAppealRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuditAppealReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/review:
+        post:
+            tags:
+                - Review
+            description: c端 创建评价
+            operationId: Review_Createreview
             requestBody:
                 content:
                     application/json:
@@ -32,7 +57,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    v1/review/appeal:
+    /v1/review/appeal:
         post:
             tags:
                 - Review
@@ -57,7 +82,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    v1/review/audit:
+    /v1/review/audit:
         post:
             tags:
                 - Review
@@ -82,7 +107,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    v1/review/reply:
+    /v1/review/reply:
         post:
             tags:
                 - Review
@@ -107,11 +132,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    v1/review/{reviewID}:
+    /v1/review/{reviewID}:
         get:
             tags:
                 - Review
-            description: C端 获得评价
+            description: C端 获取评价详情
             operationId: Review_GetReview
             parameters:
                 - name: reviewID
@@ -126,6 +151,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GetReviewReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /v1/{userID}/reviews:
+        get:
+            tags:
+                - Review
+            description: C端 查看userID下所有的评价信息
+            operationId: Review_ListReviewByUserID
+            parameters:
+                - name: userID
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListReviewByUserIDReply'
                 default:
                     description: Default error response
                     content:
@@ -156,6 +216,25 @@ components:
                 videoInfo:
                     type: string
             description: 申诉评价的请求参数
+        AuditAppealReply:
+            type: object
+            properties: {}
+            description: 对商家的申诉进行审核的返回值
+        AuditAppealRequest:
+            type: object
+            properties:
+                appealID:
+                    type: string
+                reviewID:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                opUser:
+                    type: string
+                opRemarks:
+                    type: string
+            description: 对商家的申述进行审核的请求参数
         AuditReviewReply:
             type: object
             properties:
@@ -179,7 +258,7 @@ components:
                     type: string
                 opRemarks:
                     type: string
-            description: 审核评价的请求参数
+            description: "O端 运营端 运营人员负责审核 1.评价 2.商家对用户评价的申诉 \n 审核评价的请求参数"
         CreateReviewReply:
             type: object
             properties:
@@ -192,6 +271,8 @@ components:
                 userID:
                     type: string
                 orderID:
+                    type: string
+                storeID:
                     type: string
                 score:
                     type: integer
@@ -210,7 +291,9 @@ components:
                     type: string
                 anonymous:
                     type: boolean
-            description: 创建评价的请求参数
+            description: |-
+                C端 用户端 1.用户对商品进行评价 2.用户查看某条评价的详情 3.用户查看评价列表
+                 创建评价的请求参数
         GetReviewReply:
             type: object
             properties:
@@ -225,6 +308,14 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListReviewByUserIDReply:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ReviewInfo'
+            description: 获取用户评价列表的返回值
         ReplyReviewReply:
             type: object
             properties:
@@ -244,7 +335,9 @@ components:
                     type: string
                 videoInfo:
                     type: string
-            description: 回复评价的请求参数
+            description: |-
+                B端 商家端 1.商家对用户的评价进行回复  2.商家对用户的评价进行申诉
+                 回复评价的请求参数
         ReviewInfo:
             type: object
             properties:
