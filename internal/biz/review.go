@@ -14,6 +14,7 @@ import (
 type ReviewRepo interface {
 	SaveReview(context.Context, *model.ReviewInfo) (*model.ReviewInfo, error)
 	GetReviewByOrderID(context.Context, int64) ([]*model.ReviewInfo, error)
+	GetReviewByReviewID(context.Context, int64) (*model.ReviewInfo, error)
 	SaveReply(context.Context, *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error)
 }
 
@@ -53,7 +54,13 @@ func (uc *ReviewUsecase) CreateReview(ctx context.Context, review *model.ReviewI
 	return uc.repo.SaveReview(ctx, review)
 }
 
-func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyParam) (*model.ReviewReplyInfo, error) {
+// GetReview
+func (uc *ReviewUsecase) GetReview(ctx context.Context, reviewId int64) (*model.ReviewInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] GetReview,req:%#v\n", reviewId)
+	return uc.repo.GetReviewByReviewID(ctx, reviewId)
+}
+
+func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyReviewParam) (*model.ReviewReplyInfo, error) {
 	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,req:%v", param)
 	reply := &model.ReviewReplyInfo{
 		ReviewID:  &param.ReviewID,

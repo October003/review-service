@@ -47,20 +47,40 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 
 // GetReview 获取评价详情
 func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest) (*pb.GetReviewReply, error) {
-	return &pb.GetReviewReply{}, nil
+	fmt.Printf("[service] GetReview req:%#v\n", req)
+	review, err := s.uc.GetReview(ctx, req.GetReviewID())
+	if err != nil {
+		return &pb.GetReviewReply{}, nil
+	}
+	return &pb.GetReviewReply{
+		Data: &pb.ReviewInfo{
+			ReviewID:     review.ReviewID,
+			UserID:       review.UserID,
+			OrderID:      review.OrderID,
+			Score:        review.Score,
+			ServiceScore: review.ServiceScore,
+			ExpressScore: review.ExpressScore,
+			Content:      review.Content,
+			PicInfo:      review.PicInfo,
+			VideoInfo:    review.VideoInfo,
+			Status:       review.Status,
+		},
+	}, err
 }
 
 // ListReviewByUserID 获取用户评价列表
-func (s *ReviewService) ListReviewByUserID(ctx context.Context,req *pb.ListReviewByUserIDRequest) (*pb.ListReviewByUserIDReply,error){
+func (s *ReviewService) ListReviewByUserID(ctx context.Context, req *pb.ListReviewByUserIDRequest) (*pb.ListReviewByUserIDReply, error) {
+	fmt.Printf("[service] ListReviewByUserID req:%#v\n", req)
 
-	return &pb.ListReviewByUserIDReply{},nil
+	return &pb.ListReviewByUserIDReply{}, nil
 }
 
+// review-B 商家端
 // ReplyReview 商家回复评价
 func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequest) (*pb.ReplyReviewReply, error) {
 	fmt.Printf("[service] ReplyReview req:%#v\n", req)
 	// 掉用biz层
-	reply, err := s.uc.ReviewReply(ctx, &biz.ReplyParam{
+	reply, err := s.uc.ReviewReply(ctx, &biz.ReplyReviewParam{
 		ReviewID:  req.ReviewID,
 		StoreID:   req.StoreID,
 		Content:   req.Content,
@@ -72,17 +92,20 @@ func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequ
 	}
 	return &pb.ReplyReviewReply{RelpyID: *reply.ReplyID}, nil
 }
+
 // AppealReview 商家申诉评价
 func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRequest) (*pb.AppealReviewReply, error) {
+	fmt.Printf("[service] AppealReview req:%#v\n", req)
 	return &pb.AppealReviewReply{}, nil
 }
 
+// review-C 运营端
 // AuditReview 运营审核用户评价
 func (s *ReviewService) AuditReview(ctx context.Context, req *pb.AuditReviewRequest) (*pb.AuditReviewReply, error) {
 	return &pb.AuditReviewReply{}, nil
 }
 
 // AuditAppeal 运营审核商家申诉
-func(s *ReviewService) AuditAppeal(ctx context.Context,req *pb.AuditAppealRequest) (*pb.AuditAppealReply,error){
-	return &pb.AuditAppealReply{},nil
+func (s *ReviewService) AuditAppeal(ctx context.Context, req *pb.AuditAppealRequest) (*pb.AuditAppealReply, error) {
+	return &pb.AuditAppealReply{}, nil
 }
