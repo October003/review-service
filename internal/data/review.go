@@ -43,6 +43,13 @@ func (r *reviewRepo) GetReviewByReviewID(ctx context.Context, id int64) (*model.
 	return r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.ReviewID.Eq(id)).First()
 }
 
+// ListReviewByUserID 通过用户ID查询用户评价列表
+func (r *reviewRepo) ListReviewByUserID(ctx context.Context, userID int64, offset, limit int) ([]*model.ReviewInfo, error) {
+	return r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.UserID.Eq(userID)).
+		Order(r.data.query.ReviewInfo.ID.Desc()).
+		Offset(offset).Limit(limit).Find()
+}
+
 // SaveReply 保存商家回复到数据库中
 func (r *reviewRepo) SaveReply(ctx context.Context, reply *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error) {
 	//1.数据校验
@@ -104,10 +111,20 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 	// 	// insert
 	// }
 	// 2.没有申诉记录需要创建
-	appeal := &model.ReviewAppealInfo{}
-	if err != nil {
+	appeal := &model.ReviewAppealInfo{
+		ReviewID:  &param.ReviewID,
+		StoreID:   &param.StoreID,
+		Status:    10,
+		Reason:    param.Reason,
+		Content:   param.Content,
+		PicInfo:   param.PicInfo,
+		VideoInfo: param.VideoInfo,
+	}
+	// 有查到申述记录 ret!=nil 
+	if ret != nil {
 		appeal.AppealID = ret.AppealID
 	} else {
+		// 没有查到申诉记录，ret==nil 通过雪花算法生成AppealID
 		*appeal.AppealID = snowflake.GenID()
 	}
 	err = r.data.query.ReviewAppealInfo.WithContext(ctx).Clauses(clause.OnConflict{
@@ -127,27 +144,38 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 	return appeal, err
 }
 
-func (r *reviewRepo)AuditReview(ctx context.Context,param *biz.AuditReviewParam) error{
-
-	return nil
+// AuditReview 审核用户评价 (运营对用户的评价进行审核)
+func (r *reviewRepo) AuditReview(ctx context.Context, param *biz.AuditReviewParam) error {
+	_, err := r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.ReviewID.Eq(param.ReviewID)).
+		Updates(map[string]interface{}{
+			"status":     param.Status,
+			"op_user":    param.OpUser,
+			"op_reason":  param.OpReason,
+			"op_remarks": param.OpRemarks,
+		})
+	return err
 }
+
 // AuditAppeal 审核商家申诉 (运营对商家的申诉进行审核 ,审核通过会隐藏该评价)
 func (r *reviewRepo) AuditAppeal(ctx context.Context, param *biz.AuditAppealParam) error {
 	err := r.data.query.Transaction(func(tx *query.Query) error {
 		// 申诉表
-		if _,err := tx.ReviewAppealInfo.WithContext(ctx).Where(tx.ReviewAppealInfo.AppealID.Eq(param.AppealID)).
-		Updates(map[string]interface{}{
-			"status":param.Status,
-			"op_user":param.OpUser,
-		});err != nil {
+		if _, err := tx.ReviewAppealInfo.WithContext(ctx).Where(tx.ReviewAppealInfo.AppealID.Eq(param.AppealID)).
+			Updates(map[string]interface{}{
+				"status":  param.Status,
+				"op_user": param.OpUser,
+			}); err != nil {
 			return err
 		}
 		// 评价表
 		// 申诉通过需要隐藏评价
-		
+		if param.Status == 20 {
+			if _, err := tx.ReviewAppealInfo.WithContext(ctx).Where(tx.ReviewInfo.ReviewID.Eq(param.ReviewID)).
+				Update(tx.ReviewInfo.Status, 40); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 	return err
 }
-
-

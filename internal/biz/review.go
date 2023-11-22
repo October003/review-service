@@ -15,7 +15,11 @@ type ReviewRepo interface {
 	SaveReview(context.Context, *model.ReviewInfo) (*model.ReviewInfo, error)
 	GetReviewByOrderID(context.Context, int64) ([]*model.ReviewInfo, error)
 	GetReviewByReviewID(context.Context, int64) (*model.ReviewInfo, error)
+	ListReviewByUserID(context.Context, int64, int, int) ([]*model.ReviewInfo, error)
 	SaveReply(context.Context, *model.ReviewReplyInfo) (*model.ReviewReplyInfo, error)
+	AppealReview(context.Context, *AppealReviewParam) (*model.ReviewAppealInfo, error)
+	AuditReview(context.Context, *AuditReviewParam) error
+	AuditAppeal(context.Context, *AuditAppealParam) error
 }
 
 type ReviewUsecase struct {
@@ -60,8 +64,14 @@ func (uc *ReviewUsecase) GetReview(ctx context.Context, reviewId int64) (*model.
 	return uc.repo.GetReviewByReviewID(ctx, reviewId)
 }
 
+// ListReviewByUserID 通过用户id获取评价列表
+func (uc *ReviewUsecase) ListReviewByUserID(ctx context.Context, param *ListReviewParam) ([]*model.ReviewInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] ListReviewByUserID,param:%#v\n", param)
+	return uc.repo.ListReviewByUserID(ctx, param.UserID, param.Offset, param.Size)
+}
+
 func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyReviewParam) (*model.ReviewReplyInfo, error) {
-	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,req:%v", param)
+	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,param:%v", param)
 	reply := &model.ReviewReplyInfo{
 		ReviewID:  &param.ReviewID,
 		StoreID:   &param.StoreID,
@@ -70,4 +80,22 @@ func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyReviewPara
 		VideoInfo: param.VideoInfo,
 	}
 	return uc.repo.SaveReply(ctx, reply)
+}
+
+// AppealReview
+func (uc *ReviewUsecase) AppealReview(ctx context.Context, param *AppealReviewParam) (*model.ReviewAppealInfo, error) {
+	uc.log.WithContext(ctx).Debugf("[biz] AppealReview,param:%#v\n", param)
+	return uc.repo.AppealReview(ctx, param)
+}
+
+// AuditReview
+func (uc *ReviewUsecase) AuditReview(ctx context.Context, param *AuditReviewParam) error {
+	uc.log.WithContext(ctx).Debugf("[biz] AuditReview,param:%#v\n", param)
+	return uc.repo.AuditReview(ctx, param)
+}
+
+// AuditAppeal 
+func (uc *ReviewUsecase) AuditAppeal(ctx context.Context, param *AuditAppealParam) error {
+	uc.log.WithContext(ctx).Debugf("[biz] AuditAppeal,param:%#v\n", param)
+	return uc.repo.AuditAppeal(ctx, param)
 }

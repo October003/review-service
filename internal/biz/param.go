@@ -1,5 +1,12 @@
 package biz
 
+// ListReviewParam 评价列表参数
+type ListReviewParam struct {
+	UserID int64
+	Offset int
+	Size   int
+}
+
 // ReplyParam 商家回复评价的参数
 type ReplyReviewParam struct {
 	ReviewID  int64
@@ -32,7 +39,7 @@ type AuditReviewParam struct {
 type AuditAppealParam struct {
 	AppealID  int64
 	ReviewID  int64
-	Status    string
+	Status    int32
 	OpUser    string
 	OpRemarks string
 }
