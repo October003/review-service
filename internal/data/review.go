@@ -56,7 +56,7 @@ func (r *reviewRepo) SaveReply(ctx context.Context, reply *model.ReviewReplyInfo
 	//1.1 数据合法性校验 (已经回复的评价不允许商家再次回复)
 	// 根据reviewID查询数据库，查看是否存已回复
 	review, err := r.data.query.ReviewInfo.WithContext(ctx).
-		Where(r.data.query.ReviewInfo.ReviewID.Eq(*reply.ReviewID)).First()
+		Where(r.data.query.ReviewInfo.ReviewID.Eq(reply.ReviewID)).First()
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *reviewRepo) SaveReply(ctx context.Context, reply *model.ReviewReplyInfo
 	}
 	//1.2 水平越权校验 (A商家只能回复自己的，不能回复B商家的评价
 	// 举例子：用户A删除订单，userID + orderID，当条件去查询然后删除
-	if review.StoreID != *reply.StoreID {
+	if review.StoreID != reply.StoreID {
 		return nil, errors.New("水平越权")
 	}
 	//2. 同时更新数据库中的数据 (评价表和评价回复表要同时更新，涉及到事务操作)
@@ -101,7 +101,7 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 		return nil, err
 	}
 	if err == nil && ret.Status > 10 {
-		return nil, errors.New("改评价已有审核过的申诉记录")
+		return nil, errors.New("该评价已有审核过的申诉记录")
 	}
 	// 查询不到审核过的申诉记录
 	// 1.有申诉记录但是处于待审核状态，需要更新
@@ -112,20 +112,20 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 	// }
 	// 2.没有申诉记录需要创建
 	appeal := &model.ReviewAppealInfo{
-		ReviewID:  &param.ReviewID,
-		StoreID:   &param.StoreID,
+		ReviewID:  param.ReviewID,
+		StoreID:   param.StoreID,
 		Status:    10,
 		Reason:    param.Reason,
 		Content:   param.Content,
 		PicInfo:   param.PicInfo,
 		VideoInfo: param.VideoInfo,
 	}
-	// 有查到申述记录 ret!=nil 
+	// 有查到申述记录 ret!=nil
 	if ret != nil {
 		appeal.AppealID = ret.AppealID
 	} else {
 		// 没有查到申诉记录，ret==nil 通过雪花算法生成AppealID
-		*appeal.AppealID = snowflake.GenID()
+		appeal.AppealID = snowflake.GenID()
 	}
 	err = r.data.query.ReviewAppealInfo.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns: []clause.Column{

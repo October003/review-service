@@ -55,6 +55,7 @@ func (uc *ReviewUsecase) CreateReview(ctx context.Context, review *model.ReviewI
 	// 3.查询订单和商品快照信息
 	// 实际业务场景下就需要查询订单服务和商家服务(比如说通过RPC调用订单服务和商家服务)
 	// 4.拼装数据入库
+	fmt.Printf("[biz] CreateReview,review:%#v\n", review)
 	return uc.repo.SaveReview(ctx, review)
 }
 
@@ -70,11 +71,12 @@ func (uc *ReviewUsecase) ListReviewByUserID(ctx context.Context, param *ListRevi
 	return uc.repo.ListReviewByUserID(ctx, param.UserID, param.Offset, param.Size)
 }
 
-func (uc *ReviewUsecase) ReviewReply(ctx context.Context, param *ReplyReviewParam) (*model.ReviewReplyInfo, error) {
+func (uc *ReviewUsecase) CreateReply(ctx context.Context, param *ReplyReviewParam) (*model.ReviewReplyInfo, error) {
 	uc.log.WithContext(ctx).Debugf("[biz] ReviewReply,param:%v", param)
 	reply := &model.ReviewReplyInfo{
-		ReviewID:  &param.ReviewID,
-		StoreID:   &param.StoreID,
+		ReplyID:   snowflake.GenID(),
+		ReviewID:  param.ReviewID,
+		StoreID:   param.StoreID,
 		Content:   param.Content,
 		PicInfo:   param.PicInfo,
 		VideoInfo: param.VideoInfo,
@@ -94,7 +96,7 @@ func (uc *ReviewUsecase) AuditReview(ctx context.Context, param *AuditReviewPara
 	return uc.repo.AuditReview(ctx, param)
 }
 
-// AuditAppeal 
+// AuditAppeal
 func (uc *ReviewUsecase) AuditAppeal(ctx context.Context, param *AuditAppealParam) error {
 	uc.log.WithContext(ctx).Debugf("[biz] AuditAppeal,param:%#v\n", param)
 	return uc.repo.AuditAppeal(ctx, param)

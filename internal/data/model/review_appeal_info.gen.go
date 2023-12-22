@@ -19,9 +19,9 @@ type ReviewAppealInfo struct {
 	UpdateAt  time.Time  `gorm:"column:update_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"update_at"` // 更新时间
 	DeleteAt  *time.Time `gorm:"column:delete_at;comment:逻辑删除标记" json:"delete_at"`                                  // 逻辑删除标记
 	Version   int32      `gorm:"column:version;not null;comment:乐观锁标记" json:"version"`                              // 乐观锁标记
-	AppealID  *int64     `gorm:"column:appeal_id;comment:申述id" json:"appeal_id"`                                    // 申述id
-	ReviewID  *int64     `gorm:"column:review_id;comment:评价id" json:"review_id"`                                    // 评价id
-	StoreID   *int64     `gorm:"column:store_id;comment:店铺id" json:"store_id"`                                      // 店铺id
+	AppealID  int64      `gorm:"column:appeal_id;not null;comment:申述id" json:"appeal_id"`                           // 申述id
+	ReviewID  int64      `gorm:"column:review_id;not null;comment:评价id" json:"review_id"`                           // 评价id
+	StoreID   int64      `gorm:"column:store_id;not null;comment:店铺id" json:"store_id"`                             // 店铺id
 	Status    int32      `gorm:"column:status;not null;default:10;comment:状态:10待审核; 20申诉通过; 30申诉驳回" json:"status"`  // 状态:10待审核; 20申诉通过; 30申诉驳回
 	Reason    string     `gorm:"column:reason;not null;comment:申诉原因类别" json:"reason"`                               // 申诉原因类别
 	Content   string     `gorm:"column:content;not null;comment:申诉内容描述" json:"content"`                             // 申诉内容描述

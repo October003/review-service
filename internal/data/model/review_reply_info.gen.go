@@ -19,9 +19,9 @@ type ReviewReplyInfo struct {
 	UpdateAt  time.Time `gorm:"column:update_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"update_at"` // 更新时间
 	Version   int32     `gorm:"column:version;not null;comment:乐观锁标记" json:"version"`                              // 乐观锁标记
 	IsDel     int32     `gorm:"column:is_del;not null;comment:逻辑删除标记: 0正常 1删除" json:"is_del"`                      // 逻辑删除标记: 0正常 1删除
-	ReplyID   *int64    `gorm:"column:reply_id;comment:回复id" json:"reply_id"`                                      // 回复id
-	ReviewID  *int64    `gorm:"column:review_id;comment:评价id" json:"review_id"`                                    // 评价id
-	StoreID   *int64    `gorm:"column:store_id;comment:店铺id" json:"store_id"`                                      // 店铺id
+	ReplyID   int64     `gorm:"column:reply_id;not null;comment:回复id" json:"reply_id"`                             // 回复id
+	ReviewID  int64     `gorm:"column:review_id;not null;comment:评价id" json:"review_id"`                           // 评价id
+	StoreID   int64     `gorm:"column:store_id;not null;comment:店铺id" json:"store_id"`                             // 店铺id
 	Content   string    `gorm:"column:content;not null;comment:评价内容" json:"content"`                               // 评价内容
 	PicInfo   string    `gorm:"column:pic_info;not null;default:' ';comment:媒体信息:图片" json:"pic_info"`              // 媒体信息:图片
 	VideoInfo string    `gorm:"column:video_info;not null;default:' ';comment:媒体信息:视频" json:"video_info"`          // 媒体信息:视频

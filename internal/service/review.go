@@ -40,7 +40,8 @@ func (s *ReviewService) CreateReview(ctx context.Context, req *pb.CreateReviewRe
 		Status:       0,
 	})
 	if err != nil {
-		return &pb.CreateReviewReply{}, nil
+		// fmt.Printf("[service] CreateReview:err:%v\n", err)
+		return &pb.CreateReviewReply{}, err
 	}
 	return &pb.CreateReviewReply{ReviewID: review.ReviewID}, nil
 }
@@ -72,20 +73,47 @@ func (s *ReviewService) GetReview(ctx context.Context, req *pb.GetReviewRequest)
 func (s *ReviewService) ListReviewByUserID(ctx context.Context, req *pb.ListReviewByUserIDRequest) (*pb.ListReviewByUserIDReply, error) {
 	fmt.Printf("[service] ListReviewByUserID req:%#v\n", req)
 	var offset int = (int(req.GetPage()) - 1) * 10
-	s.uc.ListReviewByUserID(ctx, &biz.ListReviewParam{
+	reviewInfo, err := s.uc.ListReviewByUserID(ctx, &biz.ListReviewParam{
 		UserID: req.GetUserID(),
 		Offset: offset,
 		Size:   int(req.GetSize()),
 	})
-	return &pb.ListReviewByUserIDReply{}, nil
+	var list []*pb.ReviewInfo
+	for _, review := range reviewInfo {
+		data := &pb.ReviewInfo{
+			ReviewID:     review.ReviewID,
+			UserID:       review.UserID,
+			OrderID:      review.OrderID,
+			Score:        review.Score,
+			ServiceScore: review.ServiceScore,
+			ExpressScore: review.ExpressScore,
+			Content:      review.Content,
+			PicInfo:      review.PicInfo,
+			VideoInfo:    review.VideoInfo,
+			Status:       review.Status,
+		}
+		list = append(list, data)
+	}
+	if err != nil {
+		// fmt.Printf("[srevice] ListReviewByUserID,err:%v\n", err)
+		return &pb.ListReviewByUserIDReply{}, err
+	}
+	return &pb.ListReviewByUserIDReply{
+		List: list,
+	}, nil
 }
 
 // review-B 商家端
 // ReplyReview 商家回复评价
 func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequest) (*pb.ReplyReviewReply, error) {
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		fmt.Printf("[service] recover panic,err:%v\n", err)
+	// 	}
+	// }()
 	fmt.Printf("[service] ReplyReview req:%#v\n", req)
 	// 掉用biz层
-	reply, err := s.uc.ReviewReply(ctx, &biz.ReplyReviewParam{
+	reply, err := s.uc.CreateReply(ctx, &biz.ReplyReviewParam{
 		ReviewID:  req.ReviewID,
 		StoreID:   req.StoreID,
 		Content:   req.Content,
@@ -93,15 +121,27 @@ func (s *ReviewService) ReplyReview(ctx context.Context, req *pb.ReplyReviewRequ
 		VideoInfo: req.VideoInfo,
 	})
 	if err != nil {
-		return &pb.ReplyReviewReply{}, nil
+		fmt.Printf("[service] ReplyReview,err:%v\n", err)
+		return &pb.ReplyReviewReply{}, err
 	}
-	return &pb.ReplyReviewReply{RelpyID: *reply.ReplyID}, nil
+	return &pb.ReplyReviewReply{RelpyID: reply.ReplyID}, nil
 }
 
 // AppealReview 商家申诉评价
 func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRequest) (*pb.AppealReviewReply, error) {
 	fmt.Printf("[service] AppealReview req:%#v\n", req)
-
+	appeal, err := s.uc.AppealReview(ctx, &biz.AppealReviewParam{
+		ReviewID:  req.GetReviewID(),
+		StoreID:   req.GetStoreID(),
+		Reason:    req.GetReason(),
+		Content:   req.GetContent(),
+		PicInfo:   req.GetPicInfo(),
+		VideoInfo: req.GetVideoInfo(),
+	})
+	if err != nil {
+		fmt.Printf("[service] AppealReview,err:%v\n", err)
+		return &pb.AppealReviewReply{AppealID: appeal.AppealID}, err
+	}
 	return &pb.AppealReviewReply{}, nil
 }
 
