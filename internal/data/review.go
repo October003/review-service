@@ -143,7 +143,6 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 	r.log.Debugf("AppealReview,err:%v\n", err)
 	return appeal, err
 }
-
 // AuditReview 审核用户评价 (运营对用户的评价进行审核)
 func (r *reviewRepo) AuditReview(ctx context.Context, param *biz.AuditReviewParam) error {
 	_, err := r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.ReviewID.Eq(param.ReviewID)).
