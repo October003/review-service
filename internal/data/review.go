@@ -170,7 +170,7 @@ func (r *reviewRepo) AuditAppeal(ctx context.Context, param *biz.AuditAppealPara
 		// 评价表
 		// 申诉通过需要隐藏评价
 		if param.Status == 20 {
-			if _, err := tx.ReviewAppealInfo.WithContext(ctx).Where(tx.ReviewInfo.ReviewID.Eq(param.ReviewID)).
+			if _, err := tx.ReviewInfo.WithContext(ctx).Where(tx.ReviewInfo.ReviewID.Eq(param.ReviewID)).
 				Update(tx.ReviewInfo.Status, 40); err != nil {
 				return err
 			}

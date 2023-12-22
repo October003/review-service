@@ -140,9 +140,9 @@ func (s *ReviewService) AppealReview(ctx context.Context, req *pb.AppealReviewRe
 	})
 	if err != nil {
 		fmt.Printf("[service] AppealReview,err:%v\n", err)
-		return &pb.AppealReviewReply{AppealID: appeal.AppealID}, err
+		return &pb.AppealReviewReply{}, err
 	}
-	return &pb.AppealReviewReply{}, nil
+	return &pb.AppealReviewReply{AppealID: appeal.AppealID}, nil
 }
 
 // review-C 运营端
