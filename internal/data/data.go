@@ -11,6 +11,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -24,6 +25,16 @@ type Data struct {
 	query *query.Query
 	log   *log.Helper
 	es    *elasticsearch.TypedClient
+	rdb   *redis.Client
+}
+
+// NewRedisClient RedisClient的构造函数
+func NewRedisClient(cfg *conf.Data) *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:         cfg.Redis.Addr,
+		WriteTimeout: cfg.Redis.WriteTimeout.AsDuration(),
+		ReadTimeout:  cfg.Redis.ReadTimeout.AsDuration(),
+	})
 }
 
 // NewESClient ES client 的构造函数
@@ -36,7 +47,7 @@ func NewESClient(cfg *conf.Elasticsearch) (*elasticsearch.TypedClient, error) {
 }
 
 // NewData .
-func NewData(db *gorm.DB, esClient *elasticsearch.TypedClient, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, esClient *elasticsearch.TypedClient, rdb *redis.Client, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
@@ -45,6 +56,7 @@ func NewData(db *gorm.DB, esClient *elasticsearch.TypedClient, logger log.Logger
 	return &Data{
 		query: query.Q,
 		es:    esClient,
+		rdb:   rdb,
 		log:   log.NewHelper(logger),
 	}, cleanup, nil
 }

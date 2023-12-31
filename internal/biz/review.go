@@ -22,7 +22,7 @@ type ReviewRepo interface {
 	AppealReview(context.Context, *AppealReviewParam) (*model.ReviewAppealInfo, error)
 	AuditReview(context.Context, *AuditReviewParam) error
 	AuditAppeal(context.Context, *AuditAppealParam) error
-	ListReviewByStoreID(context.Context,storeID int64,offset , limit int ) ([]*MyReviewInfo,error)
+    ListReviewByStoreID(ctx context.Context, storeID int64, offset, limit int) ([]*MyReviewInfo, error) 
 }
 
 type ReviewUsecase struct {
@@ -154,4 +154,3 @@ func (t *MyTime) UnmarshalJSON(data []byte) error {
 	*t = MyTime(tmp)
 	return nil
 }
-
