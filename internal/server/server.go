@@ -23,3 +23,4 @@ func NewRegistrar(conf *conf.Registry) registry.Registrar {
 	reg := consul.New(client, consul.WithHealthCheck(true))
 	return reg
 }
+

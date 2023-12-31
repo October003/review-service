@@ -3,6 +3,8 @@ package biz
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
 	v1 "review-service/api/review/v1"
 	"review-service/internal/data/model"
@@ -20,6 +22,7 @@ type ReviewRepo interface {
 	AppealReview(context.Context, *AppealReviewParam) (*model.ReviewAppealInfo, error)
 	AuditReview(context.Context, *AuditReviewParam) error
 	AuditAppeal(context.Context, *AuditAppealParam) error
+	ListReviewByStoreID(context.Context,storeID int64,offset , limit int ) ([]*MyReviewInfo,error)
 }
 
 type ReviewUsecase struct {
@@ -101,3 +104,54 @@ func (uc *ReviewUsecase) AuditAppeal(ctx context.Context, param *AuditAppealPara
 	uc.log.WithContext(ctx).Debugf("[biz] AuditAppeal,param:%#v\n", param)
 	return uc.repo.AuditAppeal(ctx, param)
 }
+
+// ListReviewByStoreID 根据storeID分页查询评价
+func (uc *ReviewUsecase) ListReviewByStoreID(ctx context.Context, storeID int64, page, size int) ([]*MyReviewInfo, error) {
+	if page < 0 {
+		page = 1
+	}
+	if size <= 0 || size > 50 {
+		size = 10
+	}
+	offset := (page - 1) * size
+	limit := size
+	uc.log.WithContext(ctx).Debugf("[biz] ListReviewByStoreID storeID:%v\n", storeID)
+	return uc.repo.ListReviewByStoreID(ctx, storeID, offset, limit)
+}
+
+type MyReviewInfo struct {
+	*model.ReviewInfo
+	CreateAt     MyTime `json:"create_at"` // 创建时间
+	UpdateAt     MyTime `json:"update_at"` // 创建时间
+	Anonymous    int32  `json:"anonymous,string"`
+	Score        int32  `json:"score,string"`
+	ServiceScore int32  `json:"service_score,string"`
+	ExpressScore int32  `json:"express_score,string"`
+	HasMedia     int32  `json:"has_media,string"`
+	Status       int32  `json:"status,string"`
+	IsDefault    int32  `json:"is_default,string"`
+	HasReply     int32  `json:"has_reply,string"`
+	ID           int64  `json:"id,string"`
+	Version      int32  `json:"version,string"`
+	ReviewID     int64  `json:"review_id,string"`
+	OrderID      int64  `json:"order_id,string"`
+	SkuID        int64  `json:"sku_id,string"`
+	SpuID        int64  `json:"spu_id,string"`
+	StoreID      int64  `json:"store_id,string"`
+	UserID       int64  `json:"user_id,string"`
+}
+
+type MyTime time.Time
+
+// UnmarshalJSON json.Unmarshal 的时候会自动调用这个方法
+func (t *MyTime) UnmarshalJSON(data []byte) error {
+	// data = "\"2023-12-17 20:03:54\""
+	s := strings.Trim(string(data), `"`)
+	tmp, err := time.Parse(time.DateTime, s)
+	if err != nil {
+		return err
+	}
+	*t = MyTime(tmp)
+	return nil
+}
+

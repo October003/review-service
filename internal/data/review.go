@@ -2,13 +2,16 @@ package data
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"review-service/internal/biz"
 	"review-service/internal/data/model"
 	"review-service/internal/data/query"
 	"review-service/pkg/snowflake"
 
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -143,6 +146,7 @@ func (r *reviewRepo) AppealReview(ctx context.Context, param *biz.AppealReviewPa
 	r.log.Debugf("AppealReview,err:%v\n", err)
 	return appeal, err
 }
+
 // AuditReview 审核用户评价 (运营对用户的评价进行审核)
 func (r *reviewRepo) AuditReview(ctx context.Context, param *biz.AuditReviewParam) error {
 	_, err := r.data.query.ReviewInfo.WithContext(ctx).Where(r.data.query.ReviewInfo.ReviewID.Eq(param.ReviewID)).
@@ -177,4 +181,36 @@ func (r *reviewRepo) AuditAppeal(ctx context.Context, param *biz.AuditAppealPara
 		return nil
 	})
 	return err
+}
+
+func (r *reviewRepo) ListReviewByStoreID(ctx context.Context, storeID int64, offset, limit int) ([]*biz.MyReviewInfo, error) {
+	// 通过Elasticsearch查询评价
+	resp, err := r.data.es.Search().Index("review").From(offset).Size(limit).
+		Query(&types.Query{
+			Bool: &types.BoolQuery{
+				Filter: []types.Query{
+					{
+						Term: map[string]types.TermQuery{
+							"store_id": {Value: storeID},
+						},
+					},
+				},
+			},
+		}).Do(ctx)
+	fmt.Printf("--> es search: %v %v\n", resp, err)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("es result total:%v\n", resp.Hits.Total.Value)
+	// 反序列化数据
+	list := make([]*biz.MyReviewInfo, 0, resp.Hits.Total.Value)
+	for _, hit := range resp.Hits.Hits {
+		tmp := &biz.MyReviewInfo{}
+		if err := json.Unmarshal(hit.Source_, tmp); err != nil {
+			r.log.Errorf("json.Unmarshal(hit.Source_,tmp) failed,err:%v\n", err)
+			continue
+		}
+		list = append(list, tmp)
+	}
+	return nil, nil
 }

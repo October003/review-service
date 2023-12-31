@@ -7,6 +7,7 @@ import (
 	"review-service/internal/conf"
 	"review-service/internal/data/query"
 
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/glebarez/sqlite"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
@@ -22,10 +23,20 @@ type Data struct {
 	// TODO wrapped database client
 	query *query.Query
 	log   *log.Helper
+	es    *elasticsearch.TypedClient
+}
+
+// NewESClient ES client 的构造函数
+func NewESClient(cfg *conf.Elasticsearch) (*elasticsearch.TypedClient, error) {
+	c := elasticsearch.Config{
+		Addresses: cfg.GetAddresses(),
+	}
+	// 创建客户端连接
+	return elasticsearch.NewTypedClient(c)
 }
 
 // NewData .
-func NewData(db *gorm.DB, logger log.Logger) (*Data, func(), error) {
+func NewData(db *gorm.DB, esClient *elasticsearch.TypedClient, logger log.Logger) (*Data, func(), error) {
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
 	}
@@ -33,6 +44,7 @@ func NewData(db *gorm.DB, logger log.Logger) (*Data, func(), error) {
 	query.SetDefault(db)
 	return &Data{
 		query: query.Q,
+		es:    esClient,
 		log:   log.NewHelper(logger),
 	}, cleanup, nil
 }

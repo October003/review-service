@@ -16,3 +16,6 @@ data:
 snowflake:
   start_time: "2023-10-28"
   machine_id: 1
+elasticsearch:
+  addresses:
+   - "http://127.0.0.1:9200"

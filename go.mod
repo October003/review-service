@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/elastic/go-elasticsearch/v8 v8.11.1
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/glebarez/sqlite v1.9.0
 	github.com/go-kratos/kratos/contrib/registry/consul/v2 v2.0.0-20231113102135-421dbc7dae0f
@@ -23,6 +24,7 @@ require (
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.3.0 // indirect
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
